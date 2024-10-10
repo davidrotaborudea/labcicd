@@ -108,5 +108,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
-      - name: Coveralls
+      - name: Run Coveralls
         uses: coverallsapp/github-action@v2
+        with:
+          path-to-lcov: target/site/jacoco/jacoco.xml
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
