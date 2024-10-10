@@ -110,7 +110,7 @@ jobs:
 
       # 5. Sube el JAR generado como un artefacto
       - name: Upload JAR
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: artifact
           path: target/labcicd-0.0.1-SNAPSHOT.jar
