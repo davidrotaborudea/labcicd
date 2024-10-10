@@ -1,5 +1,6 @@
 # Aplicacion de prueba
 [![CI/CD Pipeline](https://github.com/davidrotaborudea/labcicd/actions/workflows/build.yml/badge.svg)](https://github.com/davidrotaborudea/labcicd/actions/workflows/build.yml)
+[![Coverage Status](https://coveralls.io/repos/github/davidrotaborudea/labcicd/badge.svg?branch=main)](https://coveralls.io/github/davidrotaborudea/labcicd?branch=main)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=davidrotaborudea_labcicd&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=davidrotaborudea_labcicd)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=davidrotaborudea_labcicd&metric=bugs)](https://sonarcloud.io/summary/new_code?id=davidrotaborudea_labcicd)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=davidrotaborudea_labcicd&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=davidrotaborudea_labcicd)
