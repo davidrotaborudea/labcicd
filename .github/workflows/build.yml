@@ -136,10 +136,10 @@ jobs:
           aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com
 
       - name: Build Docker image
-        run: docker build -t springboot-app:latest .
+        run: docker build -t davidrotaborudea/labcicd:latest .
 
       - name: Tag Docker image
-        run: docker tag springboot-app:latest 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-app:latest
+        run: docker tag davidrotaborudea/labcicd:latest 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/davidrotaborudea/labcicd:latest
 
       - name: Push Docker image to ECR
-        run: docker push 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/springboot-app:latest
+        run: docker push 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/davidrotaborudea/labcicd:latest
