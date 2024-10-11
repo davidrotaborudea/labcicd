@@ -139,7 +139,7 @@ jobs:
         run: docker build -t labcicd:latest .
 
       - name: Tag Docker image
-        run: docker tag labcicd:latest 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/labcicd:latest
+        run: docker tag labcicd:latest 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/davidrotaborudea/labcicd
 
       - name: Push Docker image to ECR
-        run: docker push 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/labcicd:latest
+        run: docker push 879381272743.dkr.ecr.$AWS_REGION.amazonaws.com/davidrotaborudea/labcicd
