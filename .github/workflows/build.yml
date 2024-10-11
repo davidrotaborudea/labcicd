@@ -127,3 +127,20 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      - name: Log in to AWS ECR
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1  # Cambia por la región que uses
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 8793-8127-2743.dkr.ecr.$AWS_REGION.amazonaws.com
+
+          - name: Build Docker image
+            run: docker build -t davidrotabor/labcicd:latest
+
+          - name: Tag Docker image
+            run: docker tag springboot-app:latest 8793-8127-2743.dkr.ecr.$AWS_REGION.amazonaws.com/davidrotabor/labcicd:latest
+
+          - name: Push Docker image to ECR
+            run: docker push 8793-8127-2743.dkr.ecr.$AWS_REGION.amazonaws.com/davidrotabor/labcicd:latest
+
