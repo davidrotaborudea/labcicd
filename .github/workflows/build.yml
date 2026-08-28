@@ -1,90 +1,24 @@
 name: CI/CD Pipeline
+
 on:
   workflow_dispatch:
   push:
     branches:
       - main
+
 jobs:
   tests:
     name: Unit tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-      - name: Cache Maven packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-      - name: Run Tests
-        run: mvn -B test
-
-  #Sonar's Job
-  sonar:
-    #Depends on test's job
-    needs: tests
-    name: SonarCloud analysis
-    #Run on Ubuntu using the latest version
-    runs-on: ubuntu-latest
-    #Job's steps
-    steps:
-      #Check-out your repository under $GITHUB_WORKSPACE, so your workflow can  access it
-      - uses: actions/checkout@v4
-      #Set up JDK 17
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-        #Set up SonarCloud cache
-      - name: Cache SonarCloud packages
-        #This action allows caching dependencies and build outputs to improve  workflow execution time.
-        uses: actions/cache@v4
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-      #Set up Maven cache
-      - name: Cache Maven packages
-    #This action allows caching dependencies and build outputs to improve  workflow execution time.
-        uses: actions/cache@v4
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
-        #Analyze project with SonarCloud
-      - name: Analyze with SonarCloud
-        run: mvn -B verify sonar:sonar -Dsonar.projectKey=davidrotaborudea_labcicd -Dsonar.organization=davidrotaborudea -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=$SONAR_TOKEN
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-
-  build:
-    # Depende del job 'sonar'
-    needs: sonar
-    name: Build
-    # Se ejecuta en la última versión de Ubuntu
-    runs-on: ubuntu-latest
-
-    steps:
-      # 1. Clona el repositorio
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # 2. Configura JDK 17
+      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
-
-      # 3. Cachea los paquetes de Maven
+          
       - name: Cache Maven packages
         uses: actions/cache@v4
         with:
@@ -92,15 +26,71 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
           
-      # Paso 4: Compilar y ejecutar tests con Maven
+      - name: Run Tests
+        run: mvn -B test
+
+  sonar:
+    needs: tests
+    name: SonarCloud analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+          
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          
+      - name: Analyze with SonarCloud
+        # Como ya definiste los properties (organization, projectKey, host.url) en tu pom.xml, 
+        # puedes usar un comando más limpio aquí:
+        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.login=$SONAR_TOKEN
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  build:
+    needs: sonar
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+          
       - name: Run Tests and Generate Coverage
         run: mvn clean test jacoco:report
 
-      # Paso 5: Verificar la estructura del directorio para asegurarse de que el reporte de Jacoco se ha generado
       - name: List target directory
         run: ls -R target
 
-      # Paso 6: Enviar el reporte de cobertura a Coveralls
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         with:
@@ -108,11 +98,9 @@ jobs:
         env:
           COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
           
-      # 7. Construye la aplicación usando Maven
       - name: Build with Maven
         run: mvn -B package -DskipTests --file pom.xml
 
-      # 8. Sube el JAR generado como un artefacto
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
